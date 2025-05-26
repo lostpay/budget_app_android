@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
     }
     private void setCurrentFragment(Fragment fragment) {
         getSupportFragmentManager()
