@@ -1,46 +1,38 @@
 package fcu.app.zhuanti;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.Intent;
+import android.widget.Toast;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link homeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class homeFragment extends Fragment {
+
     private FloatingActionButton add;
-    private ExtendedFloatingActionButton add_expense,add_income;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private ExtendedFloatingActionButton add_expense, add_income;
+
+    private Chip chip_day, chip_month, chip_year;
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    boolean isOpen=false;
-    public homeFragment() {
-        // Required empty public constructor
-    }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment home.
-     */
-    // TODO: Rename and change types and number of parameters
+    public homeFragment() {}
+
     public static homeFragment newInstance(String param1, String param2) {
         homeFragment fragment = new homeFragment();
         Bundle args = new Bundle();
@@ -64,36 +56,50 @@ public class homeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-         add = view.findViewById(R.id.fab_add);
-         add_expense = view.findViewById(R.id.fab_add_expense);
-         add_income = view.findViewById(R.id.fab_add_income);
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!isOpen){
-                    openmenu();
-                }else{
-                    closemenu();
-                }
+        add = view.findViewById(R.id.fab_add);
+        add_expense = view.findViewById(R.id.fab_add_expense);
+        add_income = view.findViewById(R.id.fab_add_income);
+
+        chip_day = view.findViewById(R.id.chip_day);
+        chip_month = view.findViewById(R.id.chip_month);
+        chip_year = view.findViewById(R.id.chip_year);
+
+        chip_day.setOnClickListener(v -> {
+            chip_day.setChecked(true);
+            chip_day.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
+        });
+
+        chip_month.setOnClickListener(v -> {
+            chip_month.setChecked(true);
+            chip_month.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
+        });
+
+        chip_year.setOnClickListener(v -> {
+            chip_year.setChecked(true);
+            chip_year.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
+        });
+
+        final boolean[] isExpanded = {false};
+        add.setOnClickListener(v -> {
+            if (!isExpanded[0]) {
+                add_income.setVisibility(View.VISIBLE);
+                add_expense.setVisibility(View.VISIBLE);
+                isExpanded[0] = true;
+            } else {
+                add_income.setVisibility(View.GONE);
+                add_expense.setVisibility(View.GONE);
+                isExpanded[0] = false;
             }
         });
 
+        add_expense.setOnClickListener(v -> {
+            startActivity(new Intent(getActivity(), add_expense.class));
+        });
+
+        add_income.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Add Income clicked", Toast.LENGTH_SHORT).show();
+        });
+
         return view;
-    }
-    private void closemenu(){
-        isOpen=false;
-
-        add_income.animate().translationY(0);
-        add_income.setVisibility(View.INVISIBLE);
-        add_expense.animate().translationY(0);
-        add_expense.setVisibility(View.INVISIBLE);
-
-    }
-    private void openmenu(){
-        isOpen=true;
-        add_expense.setVisibility(View.VISIBLE);
-        add_income.setVisibility(View.VISIBLE);
-        add_expense.animate().translationY(-getResources().getDimension(R.dimen.stan_60));
-        add_income.animate().translationY(-getResources().getDimension(R.dimen.stan_110));
     }
 }
