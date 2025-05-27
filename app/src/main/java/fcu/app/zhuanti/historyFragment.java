@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fcu.app.zhuanti.Adapter.historyAdapter;
-import fcu.app.zhuanti.model.history;
+import fcu.app.zhuanti.model.history; // ✅ 請加這行
+
 
 public class historyFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -58,7 +59,7 @@ public class historyFragment extends Fragment {
         ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // 讀取支出資料
+        // 讀取資料庫中所有支出資料
         Cursor cursor = db.rawQuery("SELECT * FROM " + ExpenseDBHelper.TABLE_NAME + " ORDER BY date DESC", null);
         historyList = new ArrayList<>();
 
@@ -67,9 +68,7 @@ public class historyFragment extends Fragment {
             String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
             double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_AMOUNT));
 
-            // 根據分類指定圖示（你可自訂更多條件）
             int iconRes = getIconForCategory(category);
-
             historyList.add(new history(note, category, amount, iconRes));
         }
         cursor.close();
