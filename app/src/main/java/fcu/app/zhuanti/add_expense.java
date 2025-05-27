@@ -1,10 +1,13 @@
+
 package fcu.app.zhuanti;
 
+import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -13,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 public class add_expense extends AppCompatActivity {
 
@@ -40,6 +46,22 @@ public class add_expense extends AppCompatActivity {
         // 建立資料庫 helper
         dbHelper = new ExpenseDBHelper(this);
 
+        // 點擊日期欄位打開日期選擇器
+        etDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(add_expense.this,
+                    (view, year1, month1, dayOfMonth) -> {
+                        String dateFormatted = String.format(Locale.getDefault(), "%04d-%02d-%02d", year1, month1 + 1, dayOfMonth);
+                        etDate.setText(dateFormatted);
+                    }, year, month, day);
+
+            datePickerDialog.show();
+        });
+
         // 點擊儲存按鈕
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +70,6 @@ public class add_expense extends AppCompatActivity {
                 String dateStr = etDate.getText().toString().trim();
                 String noteStr = etNote.getText().toString().trim();
 
-                // 基本驗證
                 if (amountStr.isEmpty() || dateStr.isEmpty()) {
                     Toast.makeText(add_expense.this, "Please fill in amount and date", Toast.LENGTH_SHORT).show();
                     return;

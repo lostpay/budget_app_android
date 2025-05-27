@@ -1,17 +1,15 @@
 package fcu.app.zhuanti;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.content.Intent;
 import android.widget.Toast;
 
 import com.google.android.material.chip.Chip;
@@ -56,29 +54,17 @@ public class homeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        // Floating Action Buttons
         add = view.findViewById(R.id.fab_add);
         add_expense = view.findViewById(R.id.fab_add_expense);
         add_income = view.findViewById(R.id.fab_add_income);
 
+        // Chips
         chip_day = view.findViewById(R.id.chip_day);
         chip_month = view.findViewById(R.id.chip_month);
         chip_year = view.findViewById(R.id.chip_year);
 
-        chip_day.setOnClickListener(v -> {
-            chip_day.setChecked(true);
-            chip_day.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
-        });
-
-        chip_month.setOnClickListener(v -> {
-            chip_month.setChecked(true);
-            chip_month.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
-        });
-
-        chip_year.setOnClickListener(v -> {
-            chip_year.setChecked(true);
-            chip_year.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
-        });
-
+        // Floating Button 展開收合
         final boolean[] isExpanded = {false};
         add.setOnClickListener(v -> {
             if (!isExpanded[0]) {
@@ -92,6 +78,7 @@ public class homeFragment extends Fragment {
             }
         });
 
+        // FAB 點擊事件
         add_expense.setOnClickListener(v -> {
             startActivity(new Intent(getActivity(), add_expense.class));
         });
@@ -100,6 +87,35 @@ public class homeFragment extends Fragment {
             Toast.makeText(getActivity(), "Add Income clicked", Toast.LENGTH_SHORT).show();
         });
 
+        // Chip 點擊互斥高亮
+        chip_day.setOnClickListener(v -> {
+            resetChipColors();
+            chip_day.setChecked(true);
+            chip_day.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
+        });
+
+        chip_month.setOnClickListener(v -> {
+            resetChipColors();
+            chip_month.setChecked(true);
+            chip_month.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
+        });
+
+        chip_year.setOnClickListener(v -> {
+            resetChipColors();
+            chip_year.setChecked(true);
+            chip_year.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
+        });
+
         return view;
+    }
+
+    private void resetChipColors() {
+        ColorStateList defaultColor = ColorStateList.valueOf(Color.LTGRAY);
+        chip_day.setChipBackgroundColor(defaultColor);
+        chip_month.setChipBackgroundColor(defaultColor);
+        chip_year.setChipBackgroundColor(defaultColor);
+        chip_day.setChecked(false);
+        chip_month.setChecked(false);
+        chip_year.setChecked(false);
     }
 }
