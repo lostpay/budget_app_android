@@ -66,32 +66,33 @@ public class historyFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        // Initialize RecyclerView and data
         recyclerView = view.findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Dummy data for testing
+        ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + ExpenseDBHelper.TABLE_NAME + " ORDER BY date DESC", null);
+
         historyList = new ArrayList<>();
-        historyList.add(new history("Sushi King", "gaming", 1000, R.drawable.games));
-        historyList.add(new history("Pizza Mania", "electricity", 200, R.drawable.games));
-        historyList.add(new history("Burger House", "food", 30, R.drawable.games));
-        historyList.add(new history("Sushi King", "entertainment", 40, R.drawable.games));
-        historyList.add(new history("Pizza Mania", "food", 50, R.drawable.games));
-        historyList.add(new history("Burger House", "entertainment", 20, R.drawable.games));
-        historyList.add(new history("Sushi King", "transport", 100, R.drawable.games));
-        historyList.add(new history("Pizza Mania", "gaming", 500, R.drawable.games));
-        historyList.add(new history("Burger House", "hospital", 44, R.drawable.games));
+        while (cursor.moveToNext()) {
+            String note = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_NOTE));
+            String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
+            double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_AMOUNT));
+
+            int iconRes = R.drawable.games; // 你可以根據 category 指派不同圖示
+            historyList.add(new history(note, category, amount, iconRes));
+        }
+        cursor.close();
 
         adapter = new historyAdapter(historyList);
         recyclerView.setAdapter(adapter);
 
         return view;
     }
+
 
 
 }
