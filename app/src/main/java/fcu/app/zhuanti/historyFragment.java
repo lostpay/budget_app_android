@@ -12,41 +12,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-import fcu.app.zhuanti.Adapter.historyAdapter;
-import fcu.app.zhuanti.model.history;
+import fcu.app.zhuanti.Adapter.GroupedHistoryAdapter;
+import fcu.app.zhuanti.model.HistoryItem;
+import fcu.app.zhuanti.model.HistorySection;
+import fcu.app.zhuanti.model.HistoryTransaction;
 
 public class historyFragment extends Fragment {
     private RecyclerView recyclerView;
-    private historyAdapter adapter;
-    private List<history> historyList;
-
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
+    private GroupedHistoryAdapter adapter;
+    private List<HistoryItem> groupedList;
 
     public historyFragment() {}
-
-    public static historyFragment newInstance(String param1, String param2) {
-        historyFragment fragment = new historyFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,11 +38,23 @@ public class historyFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        groupedList = new ArrayList<>();
+        loadGroupedData();
+
+        adapter = new GroupedHistoryAdapter(groupedList);
+        recyclerView.setAdapter(adapter);
+
+        return view;
+    }
+
+    private void loadGroupedData() {
         ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + ExpenseDBHelper.TABLE_NAME + " ORDER BY date DESC", null);
-        historyList = new ArrayList<>();
+
+        Map<String, List<HistoryTransaction>> groupedMap = new LinkedHashMap<>();
+        Map<String, Double> totalMap = new LinkedHashMap<>();
 
         while (cursor.moveToNext()) {
             String note = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_NOTE));
@@ -67,14 +63,22 @@ public class historyFragment extends Fragment {
             String date = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_DATE));
 
             int iconRes = getIconForCategory(category);
-            historyList.add(new history(note, category, amount, iconRes, date));
+            HistoryTransaction transaction = new HistoryTransaction(note, category, amount, date, iconRes);
+
+            if (!groupedMap.containsKey(date)) {
+                groupedMap.put(date, new ArrayList<>());
+                totalMap.put(date, 0.0);
+            }
+
+            groupedMap.get(date).add(transaction);
+            totalMap.put(date, totalMap.get(date) + amount);
         }
         cursor.close();
 
-        adapter = new historyAdapter(historyList);
-        recyclerView.setAdapter(adapter);
-
-        return view;
+        for (String date : groupedMap.keySet()) {
+            groupedList.add(new HistorySection(date, totalMap.get(date)));
+            groupedList.addAll(groupedMap.get(date));
+        }
     }
 
     private int getIconForCategory(String category) {

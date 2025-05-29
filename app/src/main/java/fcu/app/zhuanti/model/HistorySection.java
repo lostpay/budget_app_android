@@ -2,18 +2,18 @@ package fcu.app.zhuanti.model;
 
 public class HistorySection implements HistoryItem {
     private String date;
-    private double total;
+    private double totalAmount;
 
-    public HistorySection(String date, double total) {
+    public HistorySection(String date, double totalAmount) {
         this.date = date;
-        this.total = total;
+        this.totalAmount = totalAmount;
     }
 
     public String getDate() {
         return date;
     }
 
-    public double getTotal() {
-        return total;
+    public double getTotalAmount() {
+        return totalAmount;
     }
 }
