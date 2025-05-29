@@ -1,6 +1,7 @@
 
     package fcu.app.zhuanti;
 
+    import android.content.Intent;
     import android.app.DatePickerDialog;
     import android.content.ContentValues;
     import android.database.Cursor;
@@ -101,13 +102,17 @@
                     values.put(ExpenseDBHelper.COLUMN_NOTE, noteStr);
                     values.put("type", "expense");
                     values.put("category", category);
+
                     long newRowId = db.insert(ExpenseDBHelper.TABLE_NAME, null, values);
 
                     if (newRowId != -1) {
                         Toast.makeText(add_expense.this, "Expense added", Toast.LENGTH_SHORT).show();
-                        etAmount.setText("");
-                        etDate.setText("");
-                        etNote.setText("");
+
+                        // ✅ 跳轉回 MainActivity 並顯示首頁（homeFragment）
+                        Intent intent = new Intent(add_expense.this, MainActivity.class);
+                        intent.putExtra("selected_tab", R.id.menu_home);
+                        startActivity(intent);
+                        finish();
                     } else {
                         Toast.makeText(add_expense.this, "Error adding expense", Toast.LENGTH_SHORT).show();
                     }
@@ -115,6 +120,8 @@
                     Toast.makeText(add_expense.this, "Invalid amount", Toast.LENGTH_SHORT).show();
                 }
             });
+
+
         }
 
         private void loadCategories() {

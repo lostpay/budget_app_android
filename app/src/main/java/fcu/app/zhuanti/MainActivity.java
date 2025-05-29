@@ -32,21 +32,35 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // 登入狀態檢查
         SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         boolean isSignIn = prefs.getBoolean(IS_SIGNIN_FIELD, true);
         if (!isSignIn) {
             switchToActivity(login.class);
         }
 
+        // 初始化 BottomNavigationView
         BottomNavigationView bottomNav = findViewById(R.id.nav_bar);
 
-        // ❗️直接使用 new 實例化 Fragment（避免 newInstance() 錯誤）
+        // 初始化 fragment 實例
         Fragment home = new homeFragment();
         Fragment history = new historyFragment();
         Fragment profile = new profileFragment();
 
-        setCurrentFragment(home);
+        // 根據跳轉 intent 設定預設選項
+        int selectedTab = getIntent().getIntExtra("selected_tab", R.id.menu_home);
+        bottomNav.setSelectedItemId(selectedTab);
 
+        // 預設顯示的 Fragment
+        if (selectedTab == R.id.menu_history) {
+            setCurrentFragment(history);
+        } else if (selectedTab == R.id.menu_profile) {
+            setCurrentFragment(profile);
+        } else {
+            setCurrentFragment(home);
+        }
+
+        // 底部導覽點選事件
         bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -69,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void switchToActivity(Class<?> targetActivity) {
-        Intent intent = new Intent(MainActivity.this, targetActivity);
+    private void switchToActivity(Class<?> TargetActivity) {
+        Intent intent = new Intent(MainActivity.this, TargetActivity);
         startActivity(intent);
         finish();
     }
