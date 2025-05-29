@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fcu.app.zhuanti.Adapter.historyAdapter;
-import fcu.app.zhuanti.model.history; // ✅ 請加這行
-
+import fcu.app.zhuanti.model.history;
 
 public class historyFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -55,11 +54,9 @@ public class historyFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 初始化資料庫
         ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // 讀取資料庫中所有支出資料
         Cursor cursor = db.rawQuery("SELECT * FROM " + ExpenseDBHelper.TABLE_NAME + " ORDER BY date DESC", null);
         historyList = new ArrayList<>();
 
@@ -67,9 +64,10 @@ public class historyFragment extends Fragment {
             String note = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_NOTE));
             String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
             double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_AMOUNT));
+            String date = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_DATE));
 
             int iconRes = getIconForCategory(category);
-            historyList.add(new history(note, category, amount, iconRes));
+            historyList.add(new history(note, category, amount, iconRes, date));
         }
         cursor.close();
 

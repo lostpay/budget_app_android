@@ -5,12 +5,14 @@ public class history {
     private String category;
     private double amount;
     private int iconRes;
+    private String date;
 
-    public history(String note, String category, double amount, int iconRes) {
+    public history(String note, String category, double amount, int iconRes, String date) {
         this.note = note;
         this.category = category;
         this.amount = amount;
         this.iconRes = iconRes;
+        this.date = date;
     }
 
     public String getNote() {
@@ -29,6 +31,10 @@ public class history {
         return iconRes;
     }
 
+    public String getDate() {
+        return date;
+    }
+
     public void setNote(String note) {
         this.note = note;
     }
@@ -43,5 +49,9 @@ public class history {
 
     public void setIconRes(int iconRes) {
         this.iconRes = iconRes;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
