@@ -1,5 +1,6 @@
 package fcu.app.zhuanti;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -32,21 +33,36 @@ public class historyFragment extends Fragment {
 
     public historyFragment() {}
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
-        recyclerView = view.findViewById(R.id.recycle_view);
+
+        RecyclerView recyclerView = view.findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         groupedList = new ArrayList<>();
-        loadGroupedData();
+        loadGroupedData(); // This fills groupedList with section + transaction items
 
-        adapter = new GroupedHistoryAdapter(groupedList);
+        GroupedHistoryAdapter adapter = new GroupedHistoryAdapter(groupedList, new GroupedHistoryAdapter.OnTransactionClickListener() {
+            @Override
+            public void onTransactionClick(HistoryTransaction transaction) {
+                Intent intent = new Intent(getContext(), edit_expense.class);
+                intent.putExtra("id", transaction.getId());
+                intent.putExtra("note", transaction.getNote());
+                intent.putExtra("category", transaction.getCategory());
+                intent.putExtra("amount", transaction.getAmount());
+                intent.putExtra("date", transaction.getDate());
+                startActivity(intent);
+            }
+        });
+
         recyclerView.setAdapter(adapter);
 
         return view;
     }
 
+// add_expense
     private void loadGroupedData() {
         ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -63,7 +79,9 @@ public class historyFragment extends Fragment {
             String date = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_DATE));
 
             int iconRes = getIconForCategory(category);
-            HistoryTransaction transaction = new HistoryTransaction(note, category, amount, date, iconRes);
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow("id")); // get the row's ID
+            HistoryTransaction transaction = new HistoryTransaction(id, note, category, amount, date, iconRes);
+
 
             if (!groupedMap.containsKey(date)) {
                 groupedMap.put(date, new ArrayList<>());

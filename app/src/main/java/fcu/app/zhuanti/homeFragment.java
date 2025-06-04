@@ -2,19 +2,28 @@ package fcu.app.zhuanti;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import fcu.app.zhuanti.Adapter.RecentTransactionAdapter;
+import fcu.app.zhuanti.model.HistoryTransaction;
 
 public class homeFragment extends Fragment {
 
@@ -53,6 +62,12 @@ public class homeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        List<HistoryTransaction> recentList = loadRecentTransactions(); // method returns List<HistoryTransaction>
+
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerRecent);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(new RecentTransactionAdapter(recentList));
+
 
         // Floating Action Buttons
         add = view.findViewById(R.id.fab_add);
@@ -84,7 +99,7 @@ public class homeFragment extends Fragment {
         });
 
         add_income.setOnClickListener(v -> {
-            Toast.makeText(getActivity(), "Add Income clicked", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getActivity(), add_income.class));
         });
 
         // Chip 點擊互斥高亮
@@ -118,4 +133,48 @@ public class homeFragment extends Fragment {
         chip_month.setChecked(false);
         chip_year.setChecked(false);
     }
+
+    //Load recent transactions
+
+    private List<HistoryTransaction> loadRecentTransactions() {
+        ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + ExpenseDBHelper.TABLE_NAME + " ORDER BY date DESC LIMIT 7", null);
+
+        List<HistoryTransaction> recentList = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_ID));
+            String note = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_NOTE));
+            String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
+            double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_AMOUNT));
+            String date = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_DATE));
+            int icon = getIconForCategory(category); // make sure this method exists
+            recentList.add(new HistoryTransaction(id, note, category, amount, date, icon));
+        }
+
+        cursor.close();
+        return recentList;
+    }
+
+
+    private int getIconForCategory(String category) {
+        if (category == null) return R.drawable.games;
+        switch (category) {
+            case "飲食":
+                return R.drawable.ic_food;
+            case "交通":
+                return R.drawable.ic_transport;
+            case "娛樂":
+                return R.drawable.ic_entertainment;
+            case "醫療":
+                return R.drawable.ic_health;
+            case "購物":
+                return R.drawable.ic_shopping;
+            default:
+                return R.drawable.games;
+        }
+    }
+
 }

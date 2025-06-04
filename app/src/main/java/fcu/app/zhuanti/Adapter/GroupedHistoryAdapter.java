@@ -20,12 +20,18 @@ import fcu.app.zhuanti.model.HistoryTransaction;
 public class GroupedHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SECTION = 0;
     private static final int TYPE_ITEM = 1;
-
-    private final List<HistoryItem> itemList;
-
-    public GroupedHistoryAdapter(List<HistoryItem> itemList) {
-        this.itemList = itemList;
+    public interface OnTransactionClickListener {
+        void onTransactionClick(HistoryTransaction transaction);
     }
+    private final List<HistoryItem> itemList;
+    private final OnTransactionClickListener clickListener;
+
+    public GroupedHistoryAdapter(List<HistoryItem> itemList, OnTransactionClickListener listener) {
+        this.itemList = itemList;
+        this.clickListener = listener;
+    }
+
+
 
     @Override
     public int getItemViewType(int position) {
@@ -63,15 +69,22 @@ public class GroupedHistoryAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             HistorySection section = (HistorySection) item;
             ((SectionViewHolder) holder).tvDate.setText(section.getDate());
             ((SectionViewHolder) holder).tvTotal.setText(formatAmount(section.getTotalAmount()));
+
         } else if (holder instanceof ItemViewHolder) {
-            HistoryTransaction transaction = (HistoryTransaction) item;
+            HistoryTransaction transaction = (HistoryTransaction) item; // 👈 Make sure this line is here
+
             ((ItemViewHolder) holder).tvNote.setText(transaction.getNote());
             ((ItemViewHolder) holder).tvCategory.setText(transaction.getCategory());
             ((ItemViewHolder) holder).tvAmount.setText(formatAmount(transaction.getAmount()));
             ((ItemViewHolder) holder).tvDate.setText(transaction.getDate());
             ((ItemViewHolder) holder).ivIcon.setImageResource(transaction.getIconRes());
+
+            holder.itemView.setOnClickListener(v -> {
+                clickListener.onTransactionClick(transaction); // ✅ Now it will be resolved
+            });
         }
     }
+
 
     private String formatAmount(double amount) {
         DecimalFormat df = new DecimalFormat("+#,##0;-#,##0");

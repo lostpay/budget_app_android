@@ -7,7 +7,6 @@
     import android.database.Cursor;
     import android.database.sqlite.SQLiteDatabase;
     import android.os.Bundle;
-    import android.view.View;
     import android.widget.*;
     import androidx.appcompat.app.AppCompatActivity;
     import androidx.core.view.ViewCompat;
@@ -24,6 +23,7 @@
 
         private EditText etAmount, etNote, etDate, etNewCategory;
         private Spinner spinnerCategory;
+        //private ImageButton btnBack;
         private ExpenseDBHelper dbHelper;
         private ArrayAdapter<String> categoryAdapter;
         private List<String> categoryList = new ArrayList<>();
@@ -45,7 +45,8 @@
             etNote = findViewById(R.id.editTextTextMultiLine);
             etNewCategory = findViewById(R.id.et_new_category);
             spinnerCategory = findViewById(R.id.spinner_category);
-            Button btnAdd = findViewById(R.id.btn_add);
+            ImageButton btnBack = findViewById(R.id.btn_back);
+            Button btnAdd = findViewById(R.id.btn_edit);
             Button btnAddCategory = findViewById(R.id.btn_add_category);
 
             dbHelper = new ExpenseDBHelper(this);
@@ -66,6 +67,13 @@
                             etDate.setText(dateFormatted);
                         }, year, month, day);
                 datePickerDialog.show();
+            });
+
+            btnBack.setOnClickListener(v -> {
+                Intent intent = new Intent(add_expense.this, MainActivity.class);
+                intent.putExtra("selected_tab", R.id.menu_home);
+                startActivity(intent);
+                finish();
             });
 
             btnAddCategory.setOnClickListener(v -> {
