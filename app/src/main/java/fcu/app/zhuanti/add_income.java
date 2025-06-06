@@ -2,12 +2,11 @@ package fcu.app.zhuanti;
 
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.*;
+import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
@@ -45,7 +44,8 @@ public class add_income extends AppCompatActivity {
         etNote = findViewById(R.id.editTextTextMultiLine);
         etNewCategory = findViewById(R.id.et_new_category);
         spinnerCategory = findViewById(R.id.spinner_category);
-        Button btnAdd = findViewById(R.id.btn_add);
+        ImageButton btnBack = findViewById(R.id.btn_back);
+        Button btnAdd = findViewById(R.id.btn_edit);
         Button btnAddCategory = findViewById(R.id.btn_add_category);
 
         dbHelper = new ExpenseDBHelper(this);
@@ -68,17 +68,24 @@ public class add_income extends AppCompatActivity {
             datePickerDialog.show();
         });
 
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(add_income.this, MainActivity.class);
+            intent.putExtra("selected_tab", R.id.menu_home);
+            startActivity(intent);
+            finish();
+        });
+
         btnAddCategory.setOnClickListener(v -> {
             String newCategory = etNewCategory.getText().toString().trim();
             if (!newCategory.isEmpty() && !categoryList.contains(newCategory)) {
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put("name", newCategory);
-                db.insert(ExpenseDBHelper.INCOME_CATEGORY_TABLE, null, values);
+                db.insert(ExpenseDBHelper.INCOME_CATEGORY_TABLE, null, values); // ✅ 收入分類表
                 categoryList.add(newCategory);
                 categoryAdapter.notifyDataSetChanged();
                 etNewCategory.setText("");
-                Toast.makeText(this, "已新增分類", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "分類新增成功", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -89,12 +96,13 @@ public class add_income extends AppCompatActivity {
             String category = spinnerCategory.getSelectedItem().toString();
 
             if (amountStr.isEmpty() || dateStr.isEmpty()) {
-                Toast.makeText(add_income.this, "請填寫金額與日期", Toast.LENGTH_SHORT).show();
+                Toast.makeText(add_income.this, "請輸入金額與日期", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             try {
                 double amount = Double.parseDouble(amountStr);
+
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put(ExpenseDBHelper.COLUMN_AMOUNT, amount);
@@ -104,9 +112,8 @@ public class add_income extends AppCompatActivity {
                 values.put(ExpenseDBHelper.COLUMN_CATEGORY, category);
 
                 long newRowId = db.insert(ExpenseDBHelper.TABLE_NAME, null, values);
-
                 if (newRowId != -1) {
-                    Toast.makeText(add_income.this, "收入已新增", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(add_income.this, "收入新增成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(add_income.this, MainActivity.class);
                     intent.putExtra("selected_tab", R.id.menu_home);
                     startActivity(intent);

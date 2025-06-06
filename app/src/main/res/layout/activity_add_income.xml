@@ -1,84 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="24dp"
+    tools:context=".add_income">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- 金額輸入 -->
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="返回" />
+
         <EditText
             android:id="@+id/et_nominal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="金額"
+            android:hint="$ 0.00"
             android:inputType="numberDecimal"
-            android:minHeight="48dp"
-            android:padding="12dp" />
+            android:textSize="20sp"
+            android:layout_marginTop="16dp"/>
 
-        <!-- 日期輸入（點選呼叫DatePicker） -->
-        <EditText
-            android:id="@+id/et_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="選擇日期"
-            android:focusable="false"
-            android:minHeight="48dp"
-            android:padding="12dp" />
-
-        <!-- 備註欄 -->
-        <EditText
-            android:id="@+id/editTextTextMultiLine"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:hint="備註"
-            android:gravity="top"
-            android:inputType="textMultiLine"
-            android:minHeight="48dp"
-            android:padding="12dp" />
-
-        <!-- 分類選單 -->
         <Spinner
             android:id="@+id/spinner_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:padding="8dp" />
+            android:layout_marginTop="16dp" />
 
-        <!-- 新增分類區塊 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="8dp">
 
             <EditText
                 android:id="@+id/et_new_category"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="新增分類"
-                android:minHeight="48dp"
-                android:padding="12dp" />
+                android:layout_height="wrap_content"
+                android:hint="新增分類" />
 
             <Button
                 android:id="@+id/btn_add_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="加入" />
+                android:text="新增分類"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
-        <!-- 新增收入按鈕 -->
-        <Button
-            android:id="@+id/btn_add"
+        <EditText
+            android:id="@+id/et_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="新增收入"
-            android:layout_marginTop="20dp" />
+            android:hint="YYYY-MM-DD"
+            android:focusable="false"
+            android:clickable="true"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/editTextTextMultiLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Note"
+            android:layout_marginTop="16dp"
+            android:minLines="2"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <Button
+            android:id="@+id/btn_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Income"
+            android:layout_marginTop="24dp" />
     </LinearLayout>
 </ScrollView>
