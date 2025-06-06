@@ -103,30 +103,31 @@
 
                 try {
                     double amount = Double.parseDouble(amountStr);
+                    amount = -Math.abs(amount); // 👉 金額永遠為負數
+
                     SQLiteDatabase db = dbHelper.getWritableDatabase();
                     ContentValues values = new ContentValues();
                     values.put(ExpenseDBHelper.COLUMN_AMOUNT, amount);
                     values.put(ExpenseDBHelper.COLUMN_DATE, dateStr);
                     values.put(ExpenseDBHelper.COLUMN_NOTE, noteStr);
-                    values.put("type", "expense");
-                    values.put("category", category);
+                    values.put(ExpenseDBHelper.COLUMN_TYPE, "expense");
+                    values.put(ExpenseDBHelper.COLUMN_CATEGORY, category);
 
                     long newRowId = db.insert(ExpenseDBHelper.TABLE_NAME, null, values);
 
                     if (newRowId != -1) {
-                        Toast.makeText(add_expense.this, "Expense added", Toast.LENGTH_SHORT).show();
-
-                        // ✅ 跳轉回 MainActivity 並顯示首頁（homeFragment）
+                        Toast.makeText(add_expense.this, "支出已新增", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(add_expense.this, MainActivity.class);
                         intent.putExtra("selected_tab", R.id.menu_home);
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(add_expense.this, "Error adding expense", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(add_expense.this, "新增失敗", Toast.LENGTH_SHORT).show();
                     }
                 } catch (NumberFormatException e) {
-                    Toast.makeText(add_expense.this, "Invalid amount", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(add_expense.this, "金額格式錯誤", Toast.LENGTH_SHORT).show();
                 }
+
             });
 
 
