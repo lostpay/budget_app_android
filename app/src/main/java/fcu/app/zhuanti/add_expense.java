@@ -103,7 +103,8 @@
 
                 try {
                     double amount = Double.parseDouble(amountStr);
-                    amount = -Math.abs(amount); // 👉 金額永遠為負數
+                    amount = Math.abs(amount);
+
 
                     SQLiteDatabase db = dbHelper.getWritableDatabase();
                     ContentValues values = new ContentValues();
