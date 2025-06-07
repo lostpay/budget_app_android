@@ -26,6 +26,15 @@ import fcu.app.zhuanti.model.HistoryItem;
 import fcu.app.zhuanti.model.HistorySection;
 import fcu.app.zhuanti.model.HistoryTransaction;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+
 public class historyFragment extends Fragment {
     private RecyclerView recyclerView;
     private GroupedHistoryAdapter adapter;
@@ -37,6 +46,7 @@ public class historyFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+        BarChart barChart = view.findViewById(R.id.barChart);
 
         RecyclerView recyclerView = view.findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -58,7 +68,7 @@ public class historyFragment extends Fragment {
         });
 
         recyclerView.setAdapter(adapter);
-
+        showExpenseChart(barChart);
         return view;
     }
 
@@ -97,6 +107,51 @@ public class historyFragment extends Fragment {
             groupedList.add(new HistorySection(date, totalMap.get(date)));
             groupedList.addAll(groupedMap.get(date));
         }
+    }
+
+    private void showExpenseChart(BarChart barChart) {
+        ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        // Get totals for each category
+        Cursor cursor = db.rawQuery("SELECT " + ExpenseDBHelper.COLUMN_CATEGORY + ", SUM(" + ExpenseDBHelper.COLUMN_AMOUNT + ") as total " +
+                "FROM " + ExpenseDBHelper.TABLE_NAME +
+                " GROUP BY " + ExpenseDBHelper.COLUMN_CATEGORY, null);
+
+        ArrayList<BarEntry> entries = new ArrayList<>();
+        ArrayList<String> categories = new ArrayList<>();
+
+        int index = 0;
+        while (cursor.moveToNext()) {
+            String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
+            float total = (float) cursor.getDouble(cursor.getColumnIndexOrThrow("total"));
+
+            entries.add(new BarEntry(index, total));
+            categories.add(category);
+            index++;
+        }
+        cursor.close();
+
+        BarDataSet dataSet = new BarDataSet(entries, "Expenses by Category");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS); // Optional: nice colors
+
+        BarData data = new BarData(dataSet);
+        data.setBarWidth(0.8f);
+
+        barChart.setData(data);
+        barChart.getDescription().setEnabled(false);
+        barChart.getLegend().setEnabled(true);
+
+        // X axis category labels
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setLabelCount(categories.size());
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(categories));
+
+        barChart.getAxisRight().setEnabled(false);
+        barChart.animateY(800);
+        barChart.invalidate(); // refresh
     }
 
     private int getIconForCategory(String category) {

@@ -15,9 +15,10 @@
             android:id="@+id/fab_add_income"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:layout_marginBottom="8dp"
             android:clickable="true"
             android:text="Add Income"
+            android:visibility="gone"
             app:icon="@drawable/plus"
             app:iconPadding="8dp"
             app:layout_constraintBottom_toTopOf="@id/fab_add_expense"
@@ -28,12 +29,26 @@
             android:id="@+id/fab_add_expense"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:layout_marginBottom="8dp"
             android:clickable="true"
             android:text="Add Expense"
+            android:visibility="gone"
             app:icon="@drawable/plus"
             app:iconPadding="8dp"
             app:layout_constraintBottom_toTopOf="@id/fab_add"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab_add_goal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:text="Add Goal"
+            android:visibility="gone"
+            app:icon="@drawable/plus"
+            app:iconPadding="8dp"
+            app:layout_constraintBottom_toTopOf="@id/fab_add_income"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Main FAB（在最下） -->
@@ -192,26 +207,18 @@
                     android:layout_marginBottom="8dp" />
 
                 <!-- Example Goal -->
-                <LinearLayout
+                <!-- Swipeable Goals List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerGoals"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="12dp">
+                    android:layout_height="110dp"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal"
+                    android:clipToPadding="false"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    tools:listitem="@layout/item_goal" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Save for vacation - $300 / $1000" />
-
-                    <ProgressBar
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:progress="30"
-                        android:max="100"
-                        android:progressTint="#3F51B5"
-                        android:contentDescription="Vacation saving progress: 30 percent" />
-                </LinearLayout>
                 <!-- Latest Expenses Section -->
                 <TextView
                     android:layout_width="wrap_content"

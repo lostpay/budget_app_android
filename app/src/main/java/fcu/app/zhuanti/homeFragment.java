@@ -22,15 +22,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
+import fcu.app.zhuanti.Adapter.GoalAdapter;
 import fcu.app.zhuanti.Adapter.RecentTransactionAdapter;
+import fcu.app.zhuanti.model.Goals;
 import fcu.app.zhuanti.model.HistoryTransaction;
 
 public class homeFragment extends Fragment {
 
     private FloatingActionButton add;
-    private ExtendedFloatingActionButton add_expense, add_income;
+    private ExtendedFloatingActionButton add_expense, add_income, add_goal;
     private Chip chip_day, chip_month, chip_year;
 
     public homeFragment() {}
@@ -43,11 +44,22 @@ public class homeFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recyclerRecent);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(new RecentTransactionAdapter(loadRecentTransactions()));
+        RecyclerView recyclerGoals = view.findViewById(R.id.recyclerGoals);
+        LinearLayoutManager horizontalLayoutManager =
+                new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerGoals.setLayoutManager(horizontalLayoutManager);
+
+// Load your goals from database
+        List<Goals> goalList = loadGoals(); // Write this method to get all goals from SQLite
+
+        GoalAdapter goalAdapter = new GoalAdapter(getContext(), goalList);
+        recyclerGoals.setAdapter(goalAdapter);
 
         // UI 元件
         add = view.findViewById(R.id.fab_add);
         add_expense = view.findViewById(R.id.fab_add_expense);
         add_income = view.findViewById(R.id.fab_add_income);
+        add_goal=view.findViewById(R.id.fab_add_goal);
         chip_day = view.findViewById(R.id.chip_day);
         chip_month = view.findViewById(R.id.chip_month);
         chip_year = view.findViewById(R.id.chip_year);
@@ -58,10 +70,12 @@ public class homeFragment extends Fragment {
             if (!isExpanded[0]) {
                 add_income.setVisibility(View.VISIBLE);
                 add_expense.setVisibility(View.VISIBLE);
+                add_goal.setVisibility(View.VISIBLE);
                 isExpanded[0] = true;
             } else {
                 add_income.setVisibility(View.GONE);
                 add_expense.setVisibility(View.GONE);
+                add_goal.setVisibility(View.GONE);
                 isExpanded[0] = false;
             }
         });
@@ -69,7 +83,7 @@ public class homeFragment extends Fragment {
         // 點擊跳轉新增收入/支出
         add_expense.setOnClickListener(v -> startActivity(new Intent(getActivity(), add_expense.class)));
         add_income.setOnClickListener(v -> startActivity(new Intent(getActivity(), add_income.class)));
-
+        add_goal.setOnClickListener(v -> startActivity(new Intent(getActivity(), add_goal.class)));
         // 預設 Day 模式
         chip_day.setChecked(true);
         chip_day.setChipBackgroundColor(ColorStateList.valueOf(Color.parseColor("#800080")));
@@ -98,6 +112,24 @@ public class homeFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private List<Goals> loadGoals() {
+        List<Goals> goals = new ArrayList<>();
+        GoalsDBHelper dbHelper = new GoalsDBHelper(getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + GoalsDBHelper.TABLE_NAME, null);
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow(GoalsDBHelper.COLUMN_ID));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(GoalsDBHelper.COLUMN_NAME));
+            double currentAmount = cursor.getDouble(cursor.getColumnIndexOrThrow(GoalsDBHelper.COLUMN_CURRENT_AMOUNT));
+            double targetAmount = cursor.getDouble(cursor.getColumnIndexOrThrow(GoalsDBHelper.COLUMN_TARGET_AMOUNT));
+            goals.add(new Goals(id, name, currentAmount, targetAmount));
+        }
+        cursor.close();
+        db.close();
+        return goals;
     }
 
     private void resetChipColors() {
