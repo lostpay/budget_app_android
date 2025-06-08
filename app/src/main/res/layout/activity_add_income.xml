@@ -20,6 +20,15 @@
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="返回" />
 
+        <TextView
+            android:id="@+id/tv_add_income"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Income"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
         <EditText
             android:id="@+id/et_nominal"
             android:layout_width="match_parent"
@@ -81,5 +90,6 @@
             android:layout_height="wrap_content"
             android:text="Add Income"
             android:layout_marginTop="24dp" />
+
     </LinearLayout>
 </ScrollView>

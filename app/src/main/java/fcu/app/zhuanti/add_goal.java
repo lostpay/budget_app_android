@@ -1,8 +1,10 @@
 package fcu.app.zhuanti;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +17,7 @@ public class add_goal extends AppCompatActivity {
     private EditText editName, editCurrent, editTarget;
     private Button btnSave;
     private GoalsDBHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,9 +34,17 @@ public class add_goal extends AppCompatActivity {
         editTarget = findViewById(R.id.editTargetAmount);
         btnSave = findViewById(R.id.btnSaveGoal);
         dbHelper = new GoalsDBHelper(this);
-
+        ImageButton btnBack = findViewById(R.id.btn_back);
         btnSave.setOnClickListener(v -> saveGoal());
+
+        btnSave.setOnClickListener(v -> {
+            Intent intent = new Intent(add_goal.this, MainActivity.class);
+            intent.putExtra("selected tab", R.id.menu_home);
+            startActivity(intent);
+            finish();
+        });
     }
+
     private void saveGoal() {
         String name = editName.getText().toString().trim();
         String currentStr = editCurrent.getText().toString().trim();

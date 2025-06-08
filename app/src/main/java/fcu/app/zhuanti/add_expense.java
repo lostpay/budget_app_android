@@ -27,6 +27,7 @@
         private ExpenseDBHelper dbHelper;
         private ArrayAdapter<String> categoryAdapter;
         private List<String> categoryList = new ArrayList<>();
+        private TextView tvAddNewExpense;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,7 @@
             ImageButton btnBack = findViewById(R.id.btn_back);
             Button btnAdd = findViewById(R.id.btn_edit);
             Button btnAddCategory = findViewById(R.id.btn_add_category);
+            tvAddNewExpense = findViewById(R.id.tv_add_expense);
 
             dbHelper = new ExpenseDBHelper(this);
             loadCategories();
