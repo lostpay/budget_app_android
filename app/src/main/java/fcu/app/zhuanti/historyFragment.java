@@ -13,12 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import fcu.app.zhuanti.Adapter.GroupedHistoryAdapter;
@@ -26,14 +23,11 @@ import fcu.app.zhuanti.model.HistoryItem;
 import fcu.app.zhuanti.model.HistorySection;
 import fcu.app.zhuanti.model.HistoryTransaction;
 
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 public class historyFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -42,17 +36,17 @@ public class historyFragment extends Fragment {
 
     public historyFragment() {}
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
-        BarChart barChart = view.findViewById(R.id.barChart);
+
+        PieChart pieChart = view.findViewById(R.id.pieChart);
 
         RecyclerView recyclerView = view.findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         groupedList = new ArrayList<>();
-        loadGroupedData(); // This fills groupedList with section + transaction items
+        loadGroupedData();
 
         GroupedHistoryAdapter adapter = new GroupedHistoryAdapter(groupedList, new GroupedHistoryAdapter.OnTransactionClickListener() {
             @Override
@@ -68,11 +62,11 @@ public class historyFragment extends Fragment {
         });
 
         recyclerView.setAdapter(adapter);
-        showExpenseChart(barChart);
+        showExpensePieChart(pieChart);
+
         return view;
     }
 
-// add_expense
     private void loadGroupedData() {
         ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -89,9 +83,8 @@ public class historyFragment extends Fragment {
             String date = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_DATE));
 
             int iconRes = getIconForCategory(category);
-            long id = cursor.getLong(cursor.getColumnIndexOrThrow("id")); // get the row's ID
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow("id"));
             HistoryTransaction transaction = new HistoryTransaction(id, note, category, amount, date, iconRes);
-
 
             if (!groupedMap.containsKey(date)) {
                 groupedMap.put(date, new ArrayList<>());
@@ -109,49 +102,37 @@ public class historyFragment extends Fragment {
         }
     }
 
-    private void showExpenseChart(BarChart barChart) {
+    private void showExpensePieChart(PieChart pieChart) {
         ExpenseDBHelper dbHelper = new ExpenseDBHelper(getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        // Get totals for each category
         Cursor cursor = db.rawQuery("SELECT " + ExpenseDBHelper.COLUMN_CATEGORY + ", SUM(" + ExpenseDBHelper.COLUMN_AMOUNT + ") as total " +
                 "FROM " + ExpenseDBHelper.TABLE_NAME +
-                " GROUP BY " + ExpenseDBHelper.COLUMN_CATEGORY, null);
+                " WHERE type='expense' " +          // <--- Only expenses
+                "GROUP BY " + ExpenseDBHelper.COLUMN_CATEGORY, null);
 
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        ArrayList<String> categories = new ArrayList<>();
 
-        int index = 0;
+        ArrayList<PieEntry> entries = new ArrayList<>();
+
         while (cursor.moveToNext()) {
             String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
             float total = (float) cursor.getDouble(cursor.getColumnIndexOrThrow("total"));
-
-            entries.add(new BarEntry(index, total));
-            categories.add(category);
-            index++;
+            entries.add(new PieEntry(total, category));
         }
         cursor.close();
 
-        BarDataSet dataSet = new BarDataSet(entries, "Expenses by Category");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS); // Optional: nice colors
+        PieDataSet dataSet = new PieDataSet(entries, "Expenses by Category");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        PieData data = new PieData(dataSet);
 
-        BarData data = new BarData(dataSet);
-        data.setBarWidth(0.8f);
-
-        barChart.setData(data);
-        barChart.getDescription().setEnabled(false);
-        barChart.getLegend().setEnabled(true);
-
-        // X axis category labels
-        XAxis xAxis = barChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setGranularity(1f);
-        xAxis.setLabelCount(categories.size());
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(categories));
-
-        barChart.getAxisRight().setEnabled(false);
-        barChart.animateY(800);
-        barChart.invalidate(); // refresh
+        pieChart.setData(data);
+        pieChart.getDescription().setEnabled(false);
+        pieChart.setUsePercentValues(false);
+        pieChart.setDrawHoleEnabled(true);
+        pieChart.setHoleColor(android.graphics.Color.TRANSPARENT);
+        pieChart.setTransparentCircleAlpha(110);
+        pieChart.animateY(900);
+        pieChart.invalidate();
     }
 
     private int getIconForCategory(String category) {

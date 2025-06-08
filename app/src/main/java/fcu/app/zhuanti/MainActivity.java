@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +25,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        boolean isSignIn = prefs.getBoolean(IS_SIGNIN_FIELD, false);
+        if (!isSignIn) {
+            switchToActivity(login.class);
+            return;
+        }
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            // Not logged in, go to login
+            startActivity(new Intent(this, login.class));
+            finish();
+            return;
+        }
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -32,12 +49,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // 登入狀態檢查
-        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        boolean isSignIn = prefs.getBoolean(IS_SIGNIN_FIELD, true);
-        if (!isSignIn) {
-            switchToActivity(login.class);
-        }
+
+
 
         // 初始化 BottomNavigationView
         BottomNavigationView bottomNav = findViewById(R.id.nav_bar);

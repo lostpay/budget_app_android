@@ -2,43 +2,24 @@ package fcu.app.zhuanti;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link profileFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.firebase.auth.FirebaseAuth;
+
+
 public class profileFragment extends Fragment {
-    private Button btnLogout;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    public profileFragment() {
-        // Required empty public constructor
-    }
+    public profileFragment() {}
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment profile.
-     */
-    // TODO: Rename and change types and number of parameters
     public static profileFragment newInstance(String param1, String param2) {
         profileFragment fragment = new profileFragment();
         Bundle args = new Bundle();
@@ -60,20 +41,25 @@ public class profileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         Button btnLogout = view.findViewById(R.id.btn_sign_out);
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+                // Optional: Show a toast
+                Toast.makeText(getActivity(), "Logged out!", Toast.LENGTH_SHORT).show();
+                FirebaseAuth.getInstance().signOut();
+                // Go to login and clear back stack
                 Intent intent = new Intent(getActivity(), login.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-                getActivity().finish(); // Use getActivity() to call finish() from a Fragment
+                getActivity().finish();
             }
         });
 
         return view;
     }
-
 }

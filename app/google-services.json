@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "52273332790",
+    "project_id": "android-81a2a",
+    "storage_bucket": "android-81a2a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52273332790:android:211514813ce5fc980a0e97",
+        "android_client_info": {
+          "package_name": "fcu.app.zhuanti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_Xl5vSVNNxQEVieKTzTNcPEQiJJq7N5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

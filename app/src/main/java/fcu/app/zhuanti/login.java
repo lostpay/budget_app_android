@@ -3,9 +3,11 @@ package fcu.app.zhuanti;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -25,32 +27,41 @@ import com.google.firebase.auth.FirebaseUser;
 public class login extends AppCompatActivity {
     private EditText etEmail;
     private EditText etPassword;
-    private Button btnLogin;
+    private Button btnSignIn;
+    private TextView tvSignUp;
     private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+
+        // Make sure your root layout id is "main"
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
 
         etEmail = findViewById(R.id.et_signin_email);
         etPassword = findViewById(R.id.et_signin_password);
-        btnLogin = findViewById(R.id.btn_signout);
+        btnSignIn = findViewById(R.id.btn_signin); // Update your XML accordingly
+        tvSignUp = findViewById(R.id.tv_signup);
 
-        SharedPreferences prefs = getSharedPreferences("MyPrefs",MODE_PRIVATE);
-
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = etEmail.getText().toString().trim();
                 String password = etPassword.getText().toString().trim();
+
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+                    Toast.makeText(login.this, "請輸入信箱與密碼", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -59,12 +70,16 @@ public class login extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     Toast.makeText(login.this, "登入成功：" + user.getEmail(), Toast.LENGTH_SHORT).show();
-                                    // 跳轉至主畫面
-                                    SharedPreferences prefs=getSharedPreferences("MyPrefs",MODE_PRIVATE);
-                                    SharedPreferences.Editor editor=prefs.edit();
-                                    editor.putBoolean(MainActivity.IS_SIGNIN_FIELD,true);
+
+                                    // 設置 SharedPreferences 標記為已登入
+                                    SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    editor.putBoolean(MainActivity.IS_SIGNIN_FIELD, true);
                                     editor.apply();
-                                    Intent intent=new Intent(login.this, MainActivity.class);
+
+                                    // 跳轉到主畫面，並清除返回棧
+                                    Intent intent = new Intent(login.this, MainActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
                                     finish();
                                 } else {
@@ -72,6 +87,15 @@ public class login extends AppCompatActivity {
                                 }
                             }
                         });
+            }
+        });
+
+        // "Sign up" text links to signup page
+        tvSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(login.this, SignUp.class);
+                startActivity(intent);
             }
         });
     }
