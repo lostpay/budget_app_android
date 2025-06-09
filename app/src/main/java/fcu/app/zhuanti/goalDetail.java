@@ -1,5 +1,6 @@
 package fcu.app.zhuanti;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,12 +12,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 public class goalDetail extends AppCompatActivity {
     private EditText editName, editCurrent, editTarget;
-    private Button btnUpdate, btnDelete;
+    private Button btnUpdate, btnDelete, btnBack;
     private long goalId;
     private GoalsDBHelper dbHelper;
     @Override
@@ -34,6 +36,7 @@ public class goalDetail extends AppCompatActivity {
         editTarget = findViewById(R.id.editTargetAmount);
         btnUpdate = findViewById(R.id.btnUpdateGoal);
         btnDelete = findViewById(R.id.btnDeleteGoal);
+        ImageButton btnBack = findViewById(R.id.btn_goback);
         dbHelper = new GoalsDBHelper(this);
 
         // Get goal ID from intent
@@ -41,7 +44,12 @@ public class goalDetail extends AppCompatActivity {
 
         // Load and display the goal info
         loadGoal();
-
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(goalDetail.this, MainActivity.class);
+            intent.putExtra("selected_tab", R.id.menu_home);
+            startActivity(intent);
+            finish();
+        });
         btnUpdate.setOnClickListener(v -> updateGoal());
         btnDelete.setOnClickListener(v -> confirmDeleteGoal());
     }

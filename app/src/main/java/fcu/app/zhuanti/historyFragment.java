@@ -81,6 +81,11 @@ public class historyFragment extends Fragment {
             String category = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_CATEGORY));
             double amount = cursor.getDouble(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_AMOUNT));
             String date = cursor.getString(cursor.getColumnIndexOrThrow(ExpenseDBHelper.COLUMN_DATE));
+            String type = cursor.getString(cursor.getColumnIndexOrThrow("type")); // <-- GET TYPE
+
+            if ("expense".equals(type)) {
+                amount = -amount; // <-- CONVERT TO NEGATIVE
+            }
 
             int iconRes = getIconForCategory(category);
             long id = cursor.getLong(cursor.getColumnIndexOrThrow("id"));
