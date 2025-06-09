@@ -17,7 +17,7 @@ public class add_goal extends AppCompatActivity {
     private EditText editName, editCurrent, editTarget;
     private Button btnSave;
     private GoalsDBHelper dbHelper;
-
+    private Button btnBack;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +38,13 @@ public class add_goal extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveGoal());
 
         btnSave.setOnClickListener(v -> {
+            Intent intent = new Intent(add_goal.this, MainActivity.class);
+            intent.putExtra("selected tab", R.id.menu_home);
+            startActivity(intent);
+            finish();
+        });
+
+        btnBack.setOnClickListener(v -> {
             Intent intent = new Intent(add_goal.this, MainActivity.class);
             intent.putExtra("selected tab", R.id.menu_home);
             startActivity(intent);
